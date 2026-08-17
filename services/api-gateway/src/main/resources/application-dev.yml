@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: test-route
+              uri: https://httpbin.org
+              predicates:
+                - Path=/api/test/**
+              filters:
+                - StripPrefix=2

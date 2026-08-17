@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: test-route
+              uri: https://httpbin.org
+              predicates:
+                - Path=/api/test/**
+              filters:
+                - StripPrefix=2
+logging:
+  level:
+    reactor.netty.http.client: DEBUG
+    reactor.netty.transport: DEBUG
+    org.springframework.cloud.gateway: DEBUG
