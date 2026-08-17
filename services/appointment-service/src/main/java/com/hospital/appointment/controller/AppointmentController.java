@@ -1,4 +1,4 @@
-package com.hospital.doctor.controller;
+package com.hospital.appointment.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,15 +7,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/doctors")
-public class DoctorController {
+@RequestMapping("/api/appointments")
+public class AppointmentController {
 
     @GetMapping
     public Map<String, Object> getDoctors() {
         return Map.of(
-                "service", "doctor-service",
-                "doctors", new String[]{"Dr. Smith", "Dr. Patel"},
-                "message", "Doctor service is working"
+                "service", "appointment-service",
+                "appointments", new String[]{"Appointment 1", "Appointment 2", "Appointment 3"},
+                "message", "Appointment service is working"
         );
     }
 }
