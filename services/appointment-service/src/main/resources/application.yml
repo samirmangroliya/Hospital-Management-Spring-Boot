@@ -1,9 +1,9 @@
-server:
-  port: 8083
-
 spring:
   application:
     name: appointment-service
+
+server:
+  port: 8083
 
 management:
   endpoints:
@@ -25,3 +25,8 @@ info:
     name: appointment-service
     description: Hospital Management Appointment Service
     version: 0.0.1-SNAPSHOT
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
