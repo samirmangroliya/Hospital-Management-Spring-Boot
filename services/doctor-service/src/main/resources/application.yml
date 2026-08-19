@@ -25,3 +25,8 @@ info:
     name: doctor-service
     description: Hospital Management Doctor Service
     version: 0.0.1-SNAPSHOT
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/    
