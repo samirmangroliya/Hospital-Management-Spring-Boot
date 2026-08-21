@@ -1,2 +1,7 @@
+com/hospital/dto/DoctorResponse.class
+com/hospital/dto/PatientResponse.class
+com/hospital/dto/AppointmentDetailsResponse.class
 com/hospital/appointment/controller/AppointmentController.class
+com/hospital/client/PatientClient.class
+com/hospital/client/DoctorClient.class
 com/hospital/appointment/AppointmentServiceApplication.class

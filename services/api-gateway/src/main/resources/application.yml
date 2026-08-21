@@ -22,9 +22,47 @@ spring:
               uri: lb://appointment-service
               predicates:
                 - Path=/api/appointments/**
+              filters:
+                - name: Retry
+                  args:
+                    retries: 3
+                    methods: GET
+                    exceptions:
+                      - java.io.IOException
+                      - java.util.concurrent.TimeoutException
+                  backoff:
+                      firstBackoff: 100ms
+                      maxBackoff: 1s
+                      factor: 2
+                      basedOnPreviousValue: false    
+                - name: CircuitBreaker
+                  args:
+                    name: appointmentServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/appointments 
 
 server:
   port: 8080
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      appointmentServiceCircuitBreaker:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+
+        failureRateThreshold: 50
+
+        waitDurationInOpenState: 10s
+
+        permittedNumberOfCallsInHalfOpenState: 3
+
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+  timelimiter:
+    instances:
+      appointmentServiceCircuitBreaker:
+        timeoutDuration: 3s
 
 eureka:
   client:
@@ -39,8 +77,6 @@ management:
           - health
           - info
           - gateway
-          
-
   endpoint:
     health:
       probes:
@@ -49,6 +85,16 @@ management:
   info:
     env:
       enabled: true
+      
+  tracing:
+    sampling:
+      probability: 1.0
+
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
 
 info:
   app:
@@ -59,3 +105,5 @@ info:
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{X-Correlation-Id}] %-5level [%thread] %logger{36} - %msg%n"
