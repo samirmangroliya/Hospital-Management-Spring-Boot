@@ -7,6 +7,7 @@ import com.hospital.patient.repository.PatientRepository;
 import org.springframework.stereotype.Service;
 import com.hospital.patient.exception.PatientNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -32,6 +33,8 @@ public class PatientService {
         patient.setLastName(request.lastName());
         patient.setEmail(request.email());
         patient.setPhone(request.phone());
+        patient.setCreatedAt(LocalDateTime.now());
+        patient.setUpdatedAt(LocalDateTime.now());
 
         return patientRepository.save(patient);
     }

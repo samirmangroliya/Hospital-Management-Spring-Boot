@@ -7,4 +7,3 @@ com/hospital/patient/exception/GlobalExceptionHandler.class
 com/hospital/patient/PatientServiceApplication.class
 com/hospital/patient/controller/PatientController.class
 com/hospital/patient/exception/PatientAlreadyExistsException.class
-com/hospital/patient/response/BaseResponse.class

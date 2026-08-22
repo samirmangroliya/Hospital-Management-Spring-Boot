@@ -1,2 +1,9 @@
-/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/EurekaServerApplication.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/DoctorServerApplication.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/controller/DoctorController.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/dto/DoctorRequest.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/entity/Doctor.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/exception/DoctorAlreadyExistsException.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/exception/DoctorNotFoundException.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/exception/GlobalExceptionHandler.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/repository/DoctorRepository.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/doctor-service/src/main/java/com/hospital/doctor/service/DoctorService.java

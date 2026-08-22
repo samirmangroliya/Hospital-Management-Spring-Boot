@@ -1,0 +1,283 @@
+services:
+
+  # ============================================================
+  # PostgreSQL
+  # ============================================================
+  postgres:
+    image: postgres:18
+    container_name: hospital-postgres
+    restart: unless-stopped
+
+    networks:
+      - hospital-net
+
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:?DB_USERNAME is required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${PATIENT_DB:?PATIENT_DB is required}
+
+    ports:
+      - "${POSTGRES_PORT:?POSTGRES_PORT is required}:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USERNAME}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+
+  # ============================================================
+  # Create application databases
+  # ============================================================
+  postgres-init:
+    image: postgres:18
+    container_name: hospital-postgres-init
+    restart: "no"
+
+    networks:
+      - hospital-net
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: ${DB_USERNAME:?DB_USERNAME is required}
+      PGPASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+
+      PATIENT_DB: ${PATIENT_DB:?PATIENT_DB is required}
+      DOCTOR_DB: ${DOCTOR_DB:?DOCTOR_DB is required}
+      APPOINTMENT_DB: ${APPOINTMENT_DB:?APPOINTMENT_DB is required}
+
+    entrypoint:
+      - /bin/bash
+      - -c
+
+    command:
+      - |
+        set -e
+
+        echo "Checking application databases..."
+
+        for DB in "$${PATIENT_DB}" "$${DOCTOR_DB}" "$${APPOINTMENT_DB}"; do
+
+          if ! psql -d postgres -tAc \
+            "SELECT 1 FROM pg_database WHERE datname='$${DB}'" | grep -q 1; then
+
+            echo "Creating database: $${DB}"
+
+            psql -d postgres \
+              -c "CREATE DATABASE \"$${DB}\""
+
+          else
+
+            echo "Database already exists: $${DB}"
+
+          fi
+
+        done
+
+        echo "Database initialization completed."
+
+
+  # ============================================================
+  # Jaeger
+  # ============================================================
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.20.0
+    container_name: hospital-jaeger
+    restart: unless-stopped
+
+    networks:
+      - hospital-net
+
+    ports:
+      - "${JAEGER_UI_PORT}:16686"
+      - "${JAEGER_OTLP_GRPC_PORT}:4317"
+      - "${JAEGER_OTLP_HTTP_PORT}:4318"
+
+
+  # ============================================================
+  # Eureka Server
+  # ============================================================
+  eureka-server:
+    build:
+      context: .
+      dockerfile: services/eureka-server/Dockerfile
+
+    container_name: hospital-eureka
+    restart: unless-stopped
+
+    networks:
+      - hospital-net
+
+    ports:
+      - "${EUREKA_PORT}:8761"
+
+
+  # ============================================================
+  # Patient Service
+  # ============================================================
+  patient-service:
+    build:
+      context: .
+      dockerfile: services/patient-service/Dockerfile
+
+    container_name: hospital-patient-service
+    restart: unless-stopped
+
+    networks:
+      - hospital-net
+
+    ports:
+      - "${PATIENT_SERVICE_PORT}:8081"
+
+    depends_on:
+      postgres-init:
+        condition: service_completed_successfully
+
+      eureka-server:
+        condition: service_started
+
+      jaeger:
+        condition: service_started
+
+    environment:
+      PATIENT_DB_URL: ${PATIENT_DB_URL:?PATIENT_DB_URL is required}
+      DB_USERNAME: ${DB_USERNAME:?DB_USERNAME is required}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+
+      EUREKA_URL: ${EUREKA_URL:?EUREKA_URL is required}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL}
+
+      OTEL_ENDPOINT: ${OTEL_ENDPOINT:?OTEL_ENDPOINT is required}
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: ${OTEL_ENDPOINT}
+
+
+  # ============================================================
+  # Doctor Service
+  # ============================================================
+  doctor-service:
+    build:
+      context: .
+      dockerfile: services/doctor-service/Dockerfile
+
+    container_name: hospital-doctor-service
+    restart: unless-stopped
+
+    networks:
+      - hospital-net
+
+    ports:
+      - "${DOCTOR_SERVICE_PORT}:8082"
+
+    depends_on:
+      postgres-init:
+        condition: service_completed_successfully
+
+      eureka-server:
+        condition: service_started
+
+      jaeger:
+        condition: service_started
+
+    environment:
+      DOCTOR_DB_URL: ${DOCTOR_DB_URL:?DOCTOR_DB_URL is required}
+      DB_USERNAME: ${DB_USERNAME:?DB_USERNAME is required}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+
+      EUREKA_URL: ${EUREKA_URL:?EUREKA_URL is required}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL}
+
+      OTEL_ENDPOINT: ${OTEL_ENDPOINT:?OTEL_ENDPOINT is required}
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: ${OTEL_ENDPOINT}
+
+
+  # ============================================================
+  # Appointment Service
+  # ============================================================
+  appointment-service:
+    build:
+      context: .
+      dockerfile: services/appointment-service/Dockerfile
+
+    container_name: hospital-appointment-service
+    restart: unless-stopped
+
+    networks:
+      - hospital-net
+
+    ports:
+      - "${APPOINTMENT_SERVICE_PORT}:8083"
+
+    depends_on:
+      postgres-init:
+        condition: service_completed_successfully
+
+      eureka-server:
+        condition: service_started
+
+      jaeger:
+        condition: service_started
+
+    environment:
+      APPOINTMENT_DB_URL: ${APPOINTMENT_DB_URL:?APPOINTMENT_DB_URL is required}
+      DB_USERNAME: ${DB_USERNAME:?DB_USERNAME is required}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+
+      EUREKA_URL: ${EUREKA_URL:?EUREKA_URL is required}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL}
+
+      OTEL_ENDPOINT: ${OTEL_ENDPOINT:?OTEL_ENDPOINT is required}
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: ${OTEL_ENDPOINT}
+
+
+  # ============================================================
+  # API Gateway
+  # ============================================================
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+
+    container_name: hospital-api-gateway
+    restart: unless-stopped
+
+    networks:
+      - hospital-net
+
+    ports:
+      - "${API_GATEWAY_PORT}:8080"
+
+    depends_on:
+      eureka-server:
+        condition: service_started
+
+      jaeger:
+        condition: service_started
+
+    environment:
+      EUREKA_URL: ${EUREKA_URL:?EUREKA_URL is required}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL}
+
+      OTEL_ENDPOINT: ${OTEL_ENDPOINT:?OTEL_ENDPOINT is required}
+      MANAGEMENT_OTLP_TRACING_ENDPOINT: ${OTEL_ENDPOINT}
+
+
+volumes:
+  postgres_data:
+
+
+networks:
+  hospital-net:
+    driver: bridge

@@ -1,54 +1,59 @@
 package com.hospital.appointment.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.hospital.appointment.dto.AppointmentResponse;
+import com.hospital.appointment.dto.CreateAppointmentRequest;
+import com.hospital.appointment.service.AppointmentService;
+import com.hospital.common.response.ApiResponse;
 
-import java.util.List;
-import java.util.Map;
+import jakarta.validation.Valid;
 
-import io.micrometer.tracing.Span;
-import io.micrometer.tracing.Tracer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
- 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/appointments")
 public class AppointmentController {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(AppointmentController.class);
+    private final AppointmentService appointmentService;
 
-    private final Tracer tracer;
-
-    public AppointmentController(Tracer tracer) {
-        this.tracer = tracer;
+    public AppointmentController(
+            AppointmentService appointmentService
+    ) {
+        this.appointmentService = appointmentService;
     }
-    
-    @GetMapping
-    public Map<String, Object> getAppointments(@Value("${server.port}") String port) {
 
-        Span span = tracer.currentSpan();
+    @PostMapping
+    public ResponseEntity<ApiResponse<AppointmentResponse>> create(
+            @Valid @RequestBody CreateAppointmentRequest request
+    ) {
 
-        log.info(
-                "Fetching appointments. traceId={}, spanId={}, port={}",
-                span != null ? span.context().traceId() : "NO-SPAN",
-                span != null ? span.context().spanId() : "NO-SPAN",
-                port
-        );
+        AppointmentResponse response =
+                appointmentService.createAppointment(request);
 
-       return Map.of(
-                "appointments", List.of(
-                        "Appointment 1",
-                        "Appointment 2",
-                        "Appointment 3"
-                ),
-                "service", "appointment-service",
-                "message", "Appointment service is working",
-                "port", port
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        ApiResponse.success(
+                                "Appointment created successfully",
+                                response
+                        )
+                );
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<AppointmentResponse>> getById(
+            @PathVariable Long id
+    ) {
+
+        AppointmentResponse response =
+                appointmentService.getAppointment(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Appointment fetched successfully",
+                        response
+                )
         );
     }
 }

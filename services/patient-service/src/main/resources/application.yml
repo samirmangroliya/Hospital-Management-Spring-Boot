@@ -1,20 +1,48 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: patient-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/hospital_db
-    username: postgres
-    password: postgres
+    url: ${PATIENT_DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
 
-server:
-  port: 8081
- 
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+
+info:
+  app:
+    name: patient-service
+    description: Hospital Management Patient Service
+    version: 0.0.1-SNAPSHOT
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+  instance:
+    hostname: patient-service
+    prefer-ip-address: false
+
+    status-page-url: http://localhost:${server.port}/actuator/info
+    health-check-url: http://localhost:${server.port}/actuator/health
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"
+
 management:
   endpoints:
     web:
@@ -30,13 +58,7 @@ management:
     env:
       enabled: true
 
-info:
-  app:
-    name: patient-service
-    description: Hospital Management Patient Service
-    version: 0.0.1-SNAPSHOT
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/ 
+  tracing:
+    exporter:
+      otlp:
+        endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}

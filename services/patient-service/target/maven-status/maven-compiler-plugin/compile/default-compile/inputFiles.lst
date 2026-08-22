@@ -6,5 +6,4 @@
 /Users/samir/BackendDevelopment/hospital-management-system/services/patient-service/src/main/java/com/hospital/patient/exception/PatientAlreadyExistsException.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/patient-service/src/main/java/com/hospital/patient/exception/PatientNotFoundException.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/patient-service/src/main/java/com/hospital/patient/repository/PatientRepository.java
-/Users/samir/BackendDevelopment/hospital-management-system/services/patient-service/src/main/java/com/hospital/patient/response/BaseResponse.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/patient-service/src/main/java/com/hospital/patient/service/PatientService.java

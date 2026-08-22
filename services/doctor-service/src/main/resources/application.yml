@@ -5,6 +5,44 @@ spring:
   application:
     name: doctor-service
 
+  datasource:
+    url: ${DOCTOR_DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+
+info:
+  app:
+    name: doctor-service
+    description: Hospital Management Doctor Service
+    version: 0.0.1-SNAPSHOT
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+
+  instance:
+    hostname: doctor-service
+    prefer-ip-address: false
+
+    status-page-url: http://localhost:${server.port}/actuator/info
+    health-check-url: http://localhost:${server.port}/actuator/health
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"
+
 management:
   endpoints:
     web:
@@ -20,13 +58,7 @@ management:
     env:
       enabled: true
 
-info:
-  app:
-    name: doctor-service
-    description: Hospital Management Doctor Service
-    version: 0.0.1-SNAPSHOT
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/    
+  tracing:
+    exporter:
+      otlp:
+        endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}
