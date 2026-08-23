@@ -6,83 +6,107 @@ import com.hospital.doctor.entity.Doctor;
 import com.hospital.doctor.service.DoctorService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/doctors")
+@Validated
 public class DoctorController {
 
-        private final DoctorService doctorService;
+    private final DoctorService doctorService;
 
-        public DoctorController(DoctorService doctorService) {
-                this.doctorService = doctorService;
+    public DoctorController(DoctorService doctorService) {
+        this.doctorService = doctorService;
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<Doctor>>> getAllDoctors() {
+
+        List<Doctor> doctors = doctorService.getAllDoctors();
+
+        if (doctors.isEmpty()) {
+            return ResponseEntity.ok(
+                    ApiResponse.failure("No doctors found")
+            );
         }
 
-        @GetMapping
-        public ResponseEntity<ApiResponse<List<Doctor>>> getAllDoctors() {
-                List<Doctor> doctors = doctorService.getAllDoctors();
-                if (doctors.isEmpty()) {
-                        return ResponseEntity                                        
-                                        .status(HttpStatus.OK)
-                                        .body(ApiResponse.failure("No doctors found"));
-                }
-                return ResponseEntity.ok(
-                                ApiResponse.success(
-                                                "Doctors fetched successfully",
-                                                doctors));
-        }
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Doctors fetched successfully",
+                        doctors
+                )
+        );
+    }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<ApiResponse<Doctor>> getDoctor(
-                        @PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Doctor>> getDoctor(
+            @PathVariable
+            @Positive(message = "Invalid doctor ID")
+            Long id) {
 
-                return ResponseEntity.ok(
-                                ApiResponse.success(
-                                                "Doctor fetched successfully",
-                                                doctorService.getDoctorById(id)));
-        }
+        Doctor doctor = doctorService.getDoctorById(id);
 
-        @PostMapping
-        public ResponseEntity<ApiResponse<Doctor>> createDoctor(
-                        @Valid @RequestBody DoctorRequest request) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Doctor fetched successfully",
+                        doctor
+                )
+        );
+    }
 
-                Doctor doctor = doctorService.createDoctor(request);
+    @PostMapping
+    public ResponseEntity<ApiResponse<Doctor>> createDoctor(
+            @Valid @RequestBody DoctorRequest request) {
 
-                return ResponseEntity
-                                .status(HttpStatus.CREATED)
-                                .body(
-                                                ApiResponse.success(
-                                                                "Doctor created successfully",
-                                                                doctor));
-        }
+        Doctor doctor = doctorService.createDoctor(request);
 
-        @PutMapping("/{id}")
-        public ResponseEntity<ApiResponse<Doctor>> updateDoctor(
-                        @PathVariable Long id,
-                        @Valid @RequestBody DoctorRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        ApiResponse.success(
+                                "Doctor created successfully",
+                                doctor
+                        )
+                );
+    }
 
-                Doctor doctor = doctorService.updateDoctor(id, request);
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Doctor>> updateDoctor(
+            @PathVariable
+            @Positive(message = "Invalid doctor ID")
+            Long id,
+            @Valid @RequestBody DoctorRequest request) {
 
-                return ResponseEntity.ok(
-                                ApiResponse.success(
-                                                "Doctor updated successfully",
-                                                doctor));
-        }
+        Doctor doctor = doctorService.updateDoctor(id, request);
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<ApiResponse<Void>> deleteDoctor(
-                        @PathVariable Long id) {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Doctor updated successfully",
+                        doctor
+                )
+        );
+    }
 
-                doctorService.deleteDoctor(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteDoctor(
+            @PathVariable
+            @Positive(message = "Invalid doctor ID")
+            Long id) {
 
-                return ResponseEntity.ok(
-                                ApiResponse.success(
-                                                "Doctor deleted successfully",
-                                                null));
-        }
+        doctorService.deleteDoctor(id);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Doctor deleted successfully",
+                        null
+                )
+        );
+    }
 }

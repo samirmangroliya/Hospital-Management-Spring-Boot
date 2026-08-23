@@ -50,13 +50,9 @@ resilience4j:
         slidingWindowType: COUNT_BASED
         slidingWindowSize: 10
         minimumNumberOfCalls: 5
-
         failureRateThreshold: 50
-
         waitDurationInOpenState: 10s
-
         permittedNumberOfCallsInHalfOpenState: 3
-
         automaticTransitionFromOpenToHalfOpenEnabled: true
 
   timelimiter:
@@ -73,11 +69,12 @@ management:
   endpoints:
     web:
       exposure:
-        include:
-          - health
-          - info
-          - gateway
+        include: health,info,gateway
+
   endpoint:
+    gateway:
+      access: read-only
+
     health:
       probes:
         enabled: true
@@ -85,16 +82,11 @@ management:
   info:
     env:
       enabled: true
-      
-  tracing:
-    sampling:
-      probability: 1.0
 
-  opentelemetry:
-    tracing:
-      export:
-        otlp:
-          endpoint: http://localhost:4318/v1/traces
+  tracing:
+    exporter:
+      otlp:
+        endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}
 
 info:
   app:

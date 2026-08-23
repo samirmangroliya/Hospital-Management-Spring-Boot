@@ -6,6 +6,7 @@
 /Users/samir/BackendDevelopment/hospital-management-system/services/appointment-service/src/main/java/com/hospital/appointment/dto/DoctorResponse.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/appointment-service/src/main/java/com/hospital/appointment/dto/PatientResponse.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/appointment-service/src/main/java/com/hospital/appointment/entity/Appointment.java
+/Users/samir/BackendDevelopment/hospital-management-system/services/appointment-service/src/main/java/com/hospital/appointment/entity/AppointmentStatus.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/appointment-service/src/main/java/com/hospital/appointment/exception/AppointmentNotFoundException.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/appointment-service/src/main/java/com/hospital/appointment/exception/GlobalExceptionHandler.java
 /Users/samir/BackendDevelopment/hospital-management-system/services/appointment-service/src/main/java/com/hospital/appointment/repository/AppointmentRepository.java

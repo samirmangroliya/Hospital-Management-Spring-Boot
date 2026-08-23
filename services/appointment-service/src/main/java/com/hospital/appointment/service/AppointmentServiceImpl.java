@@ -3,6 +3,7 @@ package com.hospital.appointment.service;
 import com.hospital.appointment.dto.AppointmentResponse;
 import com.hospital.appointment.dto.CreateAppointmentRequest;
 import com.hospital.appointment.entity.Appointment;
+import com.hospital.appointment.entity.AppointmentStatus;
 import com.hospital.appointment.exception.AppointmentNotFoundException;
 import com.hospital.appointment.repository.AppointmentRepository;
 
@@ -31,7 +32,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setAppointmentTime(
                 request.appointmentTime()
         );
-        appointment.setStatus("BOOKED");
+        appointment.setStatus(AppointmentStatus.SCHEDULED.name());
 
         Appointment saved =
                 appointmentRepository.save(appointment);

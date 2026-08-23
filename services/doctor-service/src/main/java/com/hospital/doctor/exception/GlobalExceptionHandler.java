@@ -4,9 +4,11 @@ import jakarta.validation.ConstraintViolationException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.MethodNotAllowedException;
 
 import com.hospital.common.response.ApiResponse;
 
@@ -57,5 +59,34 @@ public class GlobalExceptionHandler {
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
                                 .body(ApiResponse.failure(finalMessage));
+        }
+
+         @ExceptionHandler(MethodNotAllowedException.class)
+        public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(
+                        MethodNotAllowedException exception) {
+
+                return ResponseEntity
+                                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                                .body(ApiResponse.failure(exception.getMessage()));
+        }
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiResponse<Void>> handleGeneralException(
+                        Exception exception) {
+
+                return ResponseEntity
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(ApiResponse.failure("An unexpected error occurred."));
+        }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ApiResponse<Void>> handleMissingOrInvalidBody(HttpMessageNotReadableException ex) {
+
+                // Hardcode a clean, universal message for your frontend consumers
+                String userFriendlyMessage = "Required doctor data is missing or invalid."; 
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST) // Returns standard 400 Bad Request
+                                .body(ApiResponse.failure(userFriendlyMessage));
         }
 }

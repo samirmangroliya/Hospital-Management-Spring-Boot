@@ -8,6 +8,7 @@ import com.hospital.doctor.repository.DoctorRepository;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -47,6 +48,8 @@ public class DoctorService {
         doctor.setEmail(request.email());
         doctor.setPhone(request.phone());
         doctor.setSpecialization(request.specialization());
+        doctor.setCreatedAt(LocalDateTime.now());
+        doctor.setUpdatedAt(LocalDateTime.now());
 
         return doctorRepository.save(doctor);
     }

@@ -2,6 +2,7 @@ com/hospital/appointment/dto/DoctorResponse.class
 com/hospital/appointment/entity/Appointment.class
 com/hospital/appointment/repository/AppointmentRepository.class
 com/hospital/appointment/service/AppointmentServiceImpl.class
+com/hospital/appointment/entity/AppointmentStatus.class
 com/hospital/appointment/dto/CreateAppointmentRequest.class
 com/hospital/appointment/exception/AppointmentNotFoundException.class
 com/hospital/appointment/dto/PatientResponse.class

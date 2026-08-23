@@ -30,15 +30,14 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_URL}
 
   instance:
     hostname: doctor-service
     prefer-ip-address: false
-
-    status-page-url: http://localhost:${server.port}/actuator/info
-    health-check-url: http://localhost:${server.port}/actuator/health
-
+    status-page-url: http://doctor-service:${server.port}/actuator/info
+    health-check-url: http://doctor-service:${server.port}/actuator/health
+    
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"
@@ -61,4 +60,9 @@ management:
   tracing:
     exporter:
       otlp:
-        endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}
+        endpoint: ${OTEL_ENDPOINT}
+
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_METRICS_ENDPOINT}     

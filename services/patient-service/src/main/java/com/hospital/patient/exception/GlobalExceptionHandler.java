@@ -2,9 +2,11 @@ package com.hospital.patient.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.MethodNotAllowedException;
 
 import com.hospital.common.response.ApiResponse;
 
@@ -26,7 +28,7 @@ public class GlobalExceptionHandler {
                                                                 exception.getMessage()));
         }
 
-       @ExceptionHandler(MethodArgumentNotValidException.class)
+        @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ApiResponse<Map<String, String>>> handleValidation(
                         MethodArgumentNotValidException exception) {
 
@@ -37,11 +39,11 @@ public class GlobalExceptionHandler {
                                 .forEach(error -> errors.put(
                                                 error.getField(),
                                                 error.getDefaultMessage()));
- 
+
                 String detailedMessage = errors.entrySet().stream()
                                 .map(entry -> entry.getValue())
                                 .collect(Collectors.joining(", "));
- 
+
                 String finalMessage = "Validation failed: " + detailedMessage;
 
                 return ResponseEntity
@@ -50,7 +52,6 @@ public class GlobalExceptionHandler {
                                                 ApiResponse.failure(finalMessage));
         }
 
-        
         @ExceptionHandler(PatientNotFoundException.class)
         public ResponseEntity<ApiResponse<Void>> handlePatientNotFound(
                         PatientNotFoundException exception) {
@@ -58,5 +59,34 @@ public class GlobalExceptionHandler {
                 return ResponseEntity
                                 .status(HttpStatus.NOT_FOUND)
                                 .body(ApiResponse.failure(exception.getMessage()));
+        }
+
+        @ExceptionHandler(MethodNotAllowedException.class)
+        public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(
+                        MethodNotAllowedException exception) {
+
+                return ResponseEntity
+                                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                                .body(ApiResponse.failure(exception.getMessage()));
+        }
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiResponse<Void>> handleGeneralException(
+                        Exception exception) {
+
+                return ResponseEntity
+                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(ApiResponse.failure("An unexpected error occurred."));
+        }
+
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ApiResponse<Void>> handleMissingOrInvalidBody(HttpMessageNotReadableException ex) {
+
+                // Hardcode a clean, universal message for your frontend consumers
+                String userFriendlyMessage = "Required patient data is missing or invalid."; 
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST) // Returns standard 400 Bad Request
+                                .body(ApiResponse.failure(userFriendlyMessage));
         }
 }

@@ -8,7 +8,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "appointments")
+@Table(
+        name = "appointments",
+        indexes = {
+                @Index(
+                        name = "idx_appointment_doctor_time",
+                        columnList = "doctor_id, appointment_time"
+                ),
+                @Index(
+                        name = "idx_appointment_patient_time",
+                        columnList = "patient_id, appointment_time"
+                ),
+                @Index(
+                        name = "idx_appointment_status",
+                        columnList = "status"
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,6 +43,29 @@ public class Appointment {
     @Column(name = "appointment_time", nullable = false)
     private LocalDateTime appointmentTime;
 
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false, length = 30)
     private String status;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+
+        createdAt = now;
+        updatedAt = now;
+
+        if (status == null) {
+            status = AppointmentStatus.SCHEDULED.name();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
