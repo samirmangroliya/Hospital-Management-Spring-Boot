@@ -1,33 +1,20 @@
 package com.hospital.appointment.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(
-        name = "appointments",
-        indexes = {
-                @Index(
-                        name = "idx_appointment_doctor_time",
-                        columnList = "doctor_id, appointment_time"
-                ),
-                @Index(
-                        name = "idx_appointment_patient_time",
-                        columnList = "patient_id, appointment_time"
-                ),
-                @Index(
-                        name = "idx_appointment_status",
-                        columnList = "status"
-                )
-        }
-)
+@Table(name = "appointments")
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Appointment {
 
     @Id
@@ -43,29 +30,44 @@ public class Appointment {
     @Column(name = "appointment_time", nullable = false)
     private LocalDateTime appointmentTime;
 
-    @Column(name = "status", nullable = false, length = 30)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private AppointmentStatus status;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         createdAt = now;
         updatedAt = now;
 
         if (status == null) {
-            status = AppointmentStatus.SCHEDULED.name();
+            status = AppointmentStatus.SCHEDULED;
         }
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Instant.now();
+    }
+
+    public void update(
+            Long patientId,
+            Long doctorId,
+            LocalDateTime appointmentTime
+    ) {
+        this.patientId = patientId;
+        this.doctorId = doctorId;
+        this.appointmentTime = appointmentTime;
+    }
+
+    public void updateStatus(AppointmentStatus status) {
+        this.status = status;
     }
 }

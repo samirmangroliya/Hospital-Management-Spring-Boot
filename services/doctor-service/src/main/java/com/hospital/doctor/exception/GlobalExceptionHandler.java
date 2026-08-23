@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.failure(finalMessage));
         }
 
-         @ExceptionHandler(MethodNotAllowedException.class)
+        @ExceptionHandler(MethodNotAllowedException.class)
         public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(
                         MethodNotAllowedException exception) {
 
@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity
                                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(ApiResponse.failure("An unexpected error occurred."));
+                                .body(ApiResponse.failure("An unexpected error occurred."+exception.getMessage()));
         }
 
         @ExceptionHandler(HttpMessageNotReadableException.class)

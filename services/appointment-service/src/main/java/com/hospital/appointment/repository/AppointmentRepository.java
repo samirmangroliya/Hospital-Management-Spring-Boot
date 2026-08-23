@@ -2,26 +2,27 @@ package com.hospital.appointment.repository;
 
 import com.hospital.appointment.entity.Appointment;
 import com.hospital.appointment.entity.AppointmentStatus;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AppointmentRepository
-        extends JpaRepository<Appointment, Long> {
+import java.time.LocalDateTime;
+import java.util.Optional;
 
-    Page<Appointment> findByDoctorId(
+public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+
+    boolean existsByDoctorIdAndAppointmentTimeAndStatusNot(
             Long doctorId,
-            Pageable pageable
+            LocalDateTime appointmentTime,
+            AppointmentStatus status
     );
 
-    Page<Appointment> findByPatientId(
+    boolean existsByPatientIdAndAppointmentTimeAndStatusNot(
             Long patientId,
-            Pageable pageable
+            LocalDateTime appointmentTime,
+            AppointmentStatus status
     );
 
-    Page<Appointment> findByStatus(
-            AppointmentStatus status,
-            Pageable pageable
+    Optional<Appointment> findByIdAndStatusNot(
+            Long id,
+            AppointmentStatus status
     );
 }

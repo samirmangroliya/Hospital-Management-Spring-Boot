@@ -1,32 +1,49 @@
 package com.hospital.appointment.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import com.hospital.common.response.ApiResponse;
- 
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.MethodNotAllowedException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-        @ExceptionHandler(AppointmentNotFoundException.class)
-        public ResponseEntity<ApiResponse<Void>> handleAppointmentNotFound(
-                        AppointmentNotFoundException exception) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(
+            ResourceNotFoundException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.failure(ex.getMessage()));
+    }
+     
+    @ExceptionHandler(AppointmentConflictException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAppointmentConflict(
+            AppointmentConflictException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT) 
+                .body(ApiResponse.failure(ex.getMessage()));
+    }
+
+    @ExceptionHandler(MethodNotAllowedException.class)
+        public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(
+                        MethodNotAllowedException exception) {
 
                 return ResponseEntity
-                                .status(HttpStatus.NOT_FOUND)
-                                .body(
-                                                ApiResponse.failure(
-                                                                exception.getMessage()));
-        }
+                                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                                .body(ApiResponse.failure(exception.getMessage()));
+    }
 
-        @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ApiResponse<Map<String, String>>> handleValidation(
                         MethodArgumentNotValidException exception) {
 
@@ -46,17 +63,27 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST)
-                                .body(
-                                                ApiResponse.failure(
-                                                                finalMessage));
+                                .body(ApiResponse.failure(finalMessage));
         }
 
-        @ExceptionHandler(Exception.class)
-        public ResponseEntity<ApiResponse<Void>> handleGenericException(
+
+    @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiResponse<Void>> handleGeneralException(
                         Exception exception) {
 
                 return ResponseEntity
                                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(ApiResponse.failure("An unexpected error occurred: "+ exception.getMessage()));
-        }
+                                .body(ApiResponse.failure("An unexpected error occurred."+ exception.getMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingOrInvalidBody(HttpMessageNotReadableException ex) {
+
+                // Hardcode a clean, universal message for your frontend consumers
+                String userFriendlyMessage = "Required data is missing or invalid."; 
+
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST) // Returns standard 400 Bad Request
+                                .body(ApiResponse.failure(userFriendlyMessage));
+    }
 }

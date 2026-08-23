@@ -56,13 +56,13 @@ management:
   info:
     env:
       enabled: true
-
-  tracing:
-    exporter:
-      otlp:
-        endpoint: ${OTEL_ENDPOINT}
-
+ 
   otlp:
     metrics:
       export:
-        url: ${OTEL_METRICS_ENDPOINT}     
+        url: ${OTEL_METRICS_ENDPOINT:http://localhost:4318/v1/metrics}
+
+  metrics:
+    export:
+      otlp:
+        enabled: false

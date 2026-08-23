@@ -19,8 +19,7 @@ CREATE TABLE appointments (
                 'SCHEDULED',
                 'CONFIRMED',
                 'COMPLETED',
-                'CANCELLED',
-                'NO_SHOW'
+                'CANCELLED'
             )
         )
 );
