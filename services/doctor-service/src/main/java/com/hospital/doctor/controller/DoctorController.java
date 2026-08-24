@@ -61,6 +61,15 @@ public class DoctorController {
         );
     }
 
+    @GetMapping("/{id}/exists")
+    public boolean isDoctorExists(
+            @PathVariable
+            @Positive(message = "Invalid doctor ID")
+            Long id) {
+
+        return doctorService.isDoctorExists(id);
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<Doctor>> createDoctor(
             @Valid @RequestBody DoctorRequest request) {

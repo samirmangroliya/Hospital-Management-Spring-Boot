@@ -1,5 +1,7 @@
 package com.hospital.appointment.service;
 
+import com.hospital.appointment.client.DoctorClient;
+import com.hospital.appointment.client.PatientClient;
 import com.hospital.appointment.dto.AppointmentRequest;
 import com.hospital.appointment.dto.AppointmentResponse;
 import com.hospital.appointment.dto.AppointmentStatusRequest;
@@ -23,11 +25,26 @@ import java.util.List;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final PatientClient patientClient;
+    private final DoctorClient doctorClient;
 
     @Override
     @Transactional
     public AppointmentResponse create(AppointmentRequest request) {
 
+        // 1. Verify Patient exists
+        boolean patientExists = patientClient.checkPatientExists(request.patientId());
+        if (!patientExists) {
+            throw new ResourceNotFoundException("Patient with ID " + request.patientId() + " not found.");
+        }
+
+        // 2. Verify Doctor exists
+        boolean doctorExists = doctorClient.checkDoctorExists(request.doctorId());
+        if (!doctorExists) {
+            throw new ResourceNotFoundException("Doctor with ID " + request.doctorId() + " not found.");
+        }
+
+        //Check Availability of Doctor and Patient for the given appointment time
         validateDoctorAvailability(
                 request.doctorId(),
                 request.appointmentTime(),
@@ -40,6 +57,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 null
         );
 
+        // 3. Create Appointment
         Appointment appointment = Appointment.builder()
                 .patientId(request.patientId())
                 .doctorId(request.doctorId())
@@ -147,13 +165,14 @@ public class AppointmentServiceImpl implements AppointmentService {
             Long appointmentId
     ) {
 
+        java.time.LocalDateTime endBuffer = appointmentTime.plusMinutes(30);
         boolean exists = appointmentRepository
-                .existsByDoctorIdAndAppointmentTimeAndStatusNot(
-                        doctorId,
-                        appointmentTime,
-                        AppointmentStatus.CANCELLED
-                );
-
+            .existsByDoctorIdAndAppointmentTimeBetweenAndStatusNot(
+                    doctorId,
+                    appointmentTime,
+                    endBuffer,
+                    AppointmentStatus.CANCELLED
+            );
         if (!exists) {
             return;
         }

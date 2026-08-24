@@ -70,6 +70,15 @@ public class PatientController {
         }
 
         // ---------------------------------------------------------
+        // Patient EXISTS
+        // ---------------------------------------------------------
+        @GetMapping("/{id}/exists")
+        public boolean isPatientExists(
+                        @PathVariable @Positive(message = "Invalid patient ID") Long id) {
+                return patientService.isPatientExists(id);
+        }
+
+        // ---------------------------------------------------------
         // UPDATE
         // ---------------------------------------------------------
         @PutMapping("/{id}")

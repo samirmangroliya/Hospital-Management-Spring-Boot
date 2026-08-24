@@ -23,7 +23,7 @@ public class DoctorService {
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAll();
     }
-
+ 
     public Doctor getDoctorById(Long id) {
 
         return doctorRepository.findById(id)
@@ -89,5 +89,12 @@ public class DoctorService {
                         ));
 
         doctorRepository.delete(doctor);
+    }
+
+    public boolean isDoctorExists(Long id) {
+       Doctor doctor = doctorRepository.findById(id)
+                .orElse(null);
+
+        return doctor != null;       
     }
 }

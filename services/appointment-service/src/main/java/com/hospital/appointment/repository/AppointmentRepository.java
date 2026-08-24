@@ -9,20 +9,23 @@ import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    boolean existsByDoctorIdAndAppointmentTimeAndStatusNot(
-            Long doctorId,
-            LocalDateTime appointmentTime,
-            AppointmentStatus status
-    );
+        boolean existsByDoctorIdAndAppointmentTimeAndStatusNot(
+                        Long doctorId,
+                        LocalDateTime appointmentTime,
+                        AppointmentStatus status);
 
-    boolean existsByPatientIdAndAppointmentTimeAndStatusNot(
-            Long patientId,
-            LocalDateTime appointmentTime,
-            AppointmentStatus status
-    );
+        boolean existsByDoctorIdAndAppointmentTimeBetweenAndStatusNot(
+                        Long doctorId,
+                        java.time.LocalDateTime start,
+                        java.time.LocalDateTime end,
+                        AppointmentStatus status);
 
-    Optional<Appointment> findByIdAndStatusNot(
-            Long id,
-            AppointmentStatus status
-    );
+        boolean existsByPatientIdAndAppointmentTimeAndStatusNot(
+                        Long patientId,
+                        LocalDateTime appointmentTime,
+                        AppointmentStatus status);
+
+        Optional<Appointment> findByIdAndStatusNot(
+                        Long id,
+                        AppointmentStatus status);
 }
