@@ -26,9 +26,9 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.failure(ex.getMessage()));
     }
      
-    @ExceptionHandler(AppointmentConflictException.class)
+    @ExceptionHandler(AppointmentException.class)
     public ResponseEntity<ApiResponse<Void>> handleAppointmentConflict(
-            AppointmentConflictException ex) {
+            AppointmentException ex) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT) 
                 .body(ApiResponse.failure(ex.getMessage()));
@@ -84,6 +84,6 @@ public class GlobalExceptionHandler {
 
                 return ResponseEntity
                                 .status(HttpStatus.BAD_REQUEST) // Returns standard 400 Bad Request
-                                .body(ApiResponse.failure(userFriendlyMessage));
+                                .body(ApiResponse.failure(userFriendlyMessage + " " + ex.getMessage()));
     }
 }
