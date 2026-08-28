@@ -1,7 +1,7 @@
 package com.hospital.appointment.service;
 
-import com.hospital.appointment.client.DoctorClient;
-import com.hospital.appointment.client.PatientClient;
+import com.hospital.appointment.domain.gateway.DoctorGateway;
+import com.hospital.appointment.domain.gateway.PatientGateway;
 import com.hospital.appointment.dto.AppointmentRequest;
 import com.hospital.appointment.dto.AppointmentResponse;
 import com.hospital.appointment.dto.AppointmentStatusRequest;
@@ -26,21 +26,21 @@ import java.util.List;
 public class AppointmentServiceImpl implements AppointmentService {
 
         private final AppointmentRepository appointmentRepository;
-        private final PatientClient patientClient;
-        private final DoctorClient doctorClient;
+        private final DoctorGateway doctorGateway;
+        private final PatientGateway patientGateway;
 
         @Override
         @Transactional
         public AppointmentResponse create(AppointmentRequest request) {
 
                 // 1. Verify Patient exists
-                boolean patientExists = patientClient.checkPatientExists(request.patientId());
+                boolean patientExists = patientGateway.checkPatientExists(request.patientId());
                 if (!patientExists) {
                         throw new ResourceNotFoundException("Patient with ID " + request.patientId() + " not found.");
                 }
 
                 // 2. Verify Doctor exists
-                boolean doctorExists = doctorClient.checkDoctorExists(request.doctorId());
+                boolean doctorExists = doctorGateway.checkDoctorExists(request.doctorId());
                 if (!doctorExists) {
                         throw new ResourceNotFoundException("Doctor with ID " + request.doctorId() + " not found.");
                 }
