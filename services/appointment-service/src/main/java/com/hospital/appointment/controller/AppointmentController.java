@@ -33,7 +33,7 @@ public class AppointmentController {
 
         AppointmentResponse response =
                 appointmentService.create(request);
-        
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
