@@ -17,7 +17,12 @@ spring:
               uri: lb://doctor-service
               predicates:
                 - Path=/api/doctors/**
-                
+
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**
+
             - id: appointment-service
               uri: lb://appointment-service
               predicates:
@@ -38,7 +43,7 @@ spring:
                 - name: CircuitBreaker
                   args:
                     name: appointmentServiceCircuitBreaker
-                    fallbackUri: forward:/fallback/appointments 
+                    fallbackUri: forward:/fallback/appointments
 
 server:
   port: 8080
@@ -63,7 +68,7 @@ resilience4j:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URL}
+      defaultZone: http://localhost:8761/eureka/
 
 management:
   endpoints:
@@ -86,8 +91,8 @@ management:
   tracing:
     exporter:
       otlp:
-        endpoint: ${OTEL_ENDPOINT}
-        
+        endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}
+
 info:
   app:
     name: ${spring.application.name}

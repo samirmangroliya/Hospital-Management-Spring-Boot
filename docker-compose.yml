@@ -302,9 +302,52 @@ services:
       OTEL_ENDPOINT: ${OTEL_ENDPOINT:?OTEL_ENDPOINT is required}
       OTEL_METRICS_ENDPOINT: ${OTEL_METRICS_ENDPOINT:?OTEL_METRICS_ENDPOINT is required}
 
+  # ============================================================
+  # Notification Service
+  # ============================================================
+  notification-db:
+    image: mongo:latest
+    container_name: hospital-notification-db
+    restart: unless-stopped
+    networks:
+      - hospital-net
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    container_name: hospital-notification-service
+    restart: unless-stopped
+    networks:
+      - hospital-net
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT:-8084}:8084"
+    depends_on:
+      notification-db:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+      jaeger:
+        condition: service_started
+    environment:
+      PORT: 8084
+      MONGO_URI: ${MONGO_URI:?MONGO_URI is required}
+      
+      # Discovery & Service Registry
+      EUREKA_URL: ${EUREKA_URL:?EUREKA_URL is required}
+      
+      # Observability / Distributed Tracing
+      OTEL_ENDPOINT: ${OTEL_ENDPOINT:?OTEL_ENDPOINT is required}
+      OTEL_METRICS_ENDPOINT: ${OTEL_METRICS_ENDPOINT:?OTEL_METRICS_ENDPOINT is required}
+ 
 
 volumes:
   postgres_data:
+  mongo-data:
 
 
 networks:

@@ -17,7 +17,12 @@ spring:
               uri: lb://doctor-service
               predicates:
                 - Path=/api/doctors/**
-                
+
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**
+
             - id: appointment-service
               uri: lb://appointment-service
               predicates:
@@ -38,7 +43,7 @@ spring:
                 - name: CircuitBreaker
                   args:
                     name: appointmentServiceCircuitBreaker
-                    fallbackUri: forward:/fallback/appointments 
+                    fallbackUri: forward:/fallback/appointments
 
 server:
   port: 8080
