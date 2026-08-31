@@ -8,23 +8,21 @@ import java.util.List;
 
 public interface AppointmentService {
 
-        AppointmentResponse create(AppointmentRequest request);
+    AppointmentResponse create(AppointmentRequest request);
 
-        /*
-         * AppointmentResponse getById(Long id);
-         * 
-         * List<AppointmentResponse> getAll();
-         * 
-         * AppointmentResponse update(
-         * Long id,
-         * AppointmentRequest request
-         * );
-         * 
-         * AppointmentResponse updateStatus(
-         * Long id,
-         * AppointmentStatusRequest request
-         * );
-         * 
-         * void delete(Long id);
-         */
+    AppointmentResponse getById(Long id);
+
+    List<AppointmentResponse> getAll();
+
+    AppointmentResponse update(
+            Long id,
+            AppointmentRequest request
+    );
+
+    AppointmentResponse updateStatus(
+            Long id,
+            AppointmentStatusRequest request
+    );
+
+    void delete(Long id);
 }

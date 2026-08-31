@@ -5,6 +5,7 @@ import com.hospital.appointment.entity.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
@@ -24,5 +25,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Optional<Appointment> findByIdAndStatusNot(
             Long id,
             AppointmentStatus status
+    );
+
+    boolean existsByDoctorIdAndAppointmentTimeAndStatusIn(
+            Long doctorId,
+            LocalDateTime appointmentTime,
+            List<AppointmentStatus> statuses
     );
 }

@@ -18,20 +18,18 @@ spring:
     enabled: true
     baseline-on-migrate: true
     baseline-version: 1
-
+      
   kafka:
-    bootstrap-servers: kafka:9092
-
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
+    consumer:
+      group-id: appointment-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        enable.idempotence: true
-        acks: all
-        retries: 10
-        max.in.flight.requests.per.connection: 5  
-
+        spring.json.trusted.packages: "*"
 info:
   app:
     name: appointment-service

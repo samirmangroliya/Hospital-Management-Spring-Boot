@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "appointments")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -48,7 +50,7 @@ public class Appointment {
         updatedAt = now;
 
         if (status == null) {
-            status = AppointmentStatus.SCHEDULED;
+            status = AppointmentStatus.INITIATED;
         }
     }
 
@@ -60,8 +62,7 @@ public class Appointment {
     public void update(
             Long patientId,
             Long doctorId,
-            LocalDateTime appointmentTime
-    ) {
+            LocalDateTime appointmentTime) {
         this.patientId = patientId;
         this.doctorId = doctorId;
         this.appointmentTime = appointmentTime;
@@ -70,4 +71,7 @@ public class Appointment {
     public void updateStatus(AppointmentStatus status) {
         this.status = status;
     }
+
+    private boolean patientVerified = false;
+    private boolean doctorVerified = false;
 }
