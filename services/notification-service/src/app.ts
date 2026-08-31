@@ -3,6 +3,9 @@ import express from 'express';
 import { connectDB } from './config/db';
 import notificationRoutes from './routes/notification.routes';
 import { Eureka } from 'eureka-js-client';
+import { connectKafka } from './config/Kafka';
+
+// Initialize Kafka consumer connection
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '8085', 10);

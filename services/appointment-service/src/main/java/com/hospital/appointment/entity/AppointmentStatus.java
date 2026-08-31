@@ -1,7 +1,7 @@
 package com.hospital.appointment.entity;
 
 public enum AppointmentStatus {
-    SCHEDULED,
+    INITIATED,
     CONFIRMED,
     COMPLETED,
     CANCELLED
