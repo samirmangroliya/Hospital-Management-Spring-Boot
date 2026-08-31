@@ -14,18 +14,18 @@ A production-grade, event-driven microservices architecture built with **Spring 
                              ▼
                   ┌──────────────────────┐
                   │    Gateway Service   │ (Spring Cloud Gateway)
-                  └─────┬────┬────┬──────┘
-                        │    │    │
-         ┌──────────────┘    │    └──────────────┐
-         ▼                   ▼                   ▼
-┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐
-│Appointment Service│ │  Patient Service │ │  Doctor Service  │
-│  (Port 8083)     │ │   (Port 8081)    │ │   (Port 8082)    │
-└────────┬─────────┘ └────────┬─────────┘ └────────┬─────────┘
-         │                    │                    │
-         └────────────────────┼────────────────────┘
-                              │ Async Messaging
-                              ▼
-                     ┌──────────────────┐
-                     │   Apache Kafka   │ (Saga Orchestration & Outbox)
-                     └──────────────────┘
+                  └─────┬─────┬─────┬────┘
+                        │     │     │
+         ┌──────────────┘     │     └────────────────────┐
+         ▼                    ▼                          ▼
+┌─────────────────────┐  ┌────────────────────┐   ┌──────────────────┐
+│ Appointment Service │  │  Patient Service   │   │  Doctor Service  │
+│    (Port 8083)      │  │   (Port 8081)      │   │   (Port 8082)    │
+└────────┬────────────┘  └────────┬───────────┘   └────────┬─────────┘
+         │                        │                        │
+         └────────────────────────┼────────────────────────┘
+                                  │ Async Messaging
+                                  ▼
+                         ┌──────────────────┐
+                         │   Apache Kafka   │ (Saga Orchestration & Outbox)
+                         └──────────────────┘
