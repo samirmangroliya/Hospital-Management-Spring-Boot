@@ -1,9 +1,57 @@
+server:
+  port: 8083
+
 spring:
   application:
     name: appointment-service
 
-server:
-  port: 8083
+  datasource:
+    url: ${APPOINTMENT_DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+      
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: appointment-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+info:
+  app:
+    name: appointment-service
+    description: Hospital Management Appointment Service
+    version: 0.0.1-SNAPSHOT
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_URL}
+
+  instance:
+    hostname: appointment-service
+    prefer-ip-address: false
+    status-page-url: http://appointment-service:${server.port}/actuator/info
+    health-check-url: http://appointment-service:${server.port}/actuator/health
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [traceId=%X{traceId}, spanId=%X{spanId}] - %msg%n"
 
 management:
   endpoints:
@@ -19,14 +67,13 @@ management:
   info:
     env:
       enabled: true
+ 
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_METRICS_ENDPOINT:http://localhost:4318/v1/metrics}
 
-info:
-  app:
-    name: appointment-service
-    description: Hospital Management Appointment Service
-    version: 0.0.1-SNAPSHOT
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+  metrics:
+    export:
+      otlp:
+        enabled: false

@@ -1,0 +1,18 @@
+# Environment / secrets
+.env
+.env.local
+.env.dev
+.env.prod
+
+# Maven
+target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+.DS_Store
+/services/doctor-services/target/
+/services/patient-services/target/
+/services/appointment-services/target/

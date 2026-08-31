@@ -1,17 +1,106 @@
 spring:
+  application:
+    name: api-gateway
+
   cloud:
     gateway:
       server:
         webflux:
           routes:
-            - id: test-route
-              uri: https://httpbin.org
+
+            - id: patient-service
+              uri: lb://patient-service
               predicates:
-                - Path=/api/test/**
+                - Path=/api/patients/**
+
+            - id: doctor-service
+              uri: lb://doctor-service
+              predicates:
+                - Path=/api/doctors/**
+
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**
+
+            - id: appointment-service
+              uri: lb://appointment-service
+              predicates:
+                - Path=/api/appointments/**
               filters:
-                - StripPrefix=2
+                - name: Retry
+                  args:
+                    retries: 3
+                    methods: GET
+                    exceptions:
+                      - java.io.IOException
+                      - java.util.concurrent.TimeoutException
+                  backoff:
+                      firstBackoff: 100ms
+                      maxBackoff: 1s
+                      factor: 2
+                      basedOnPreviousValue: false    
+                - name: CircuitBreaker
+                  args:
+                    name: appointmentServiceCircuitBreaker
+                    fallbackUri: forward:/fallback/appointments
+
+server:
+  port: 8080
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      appointmentServiceCircuitBreaker:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+  timelimiter:
+    instances:
+      appointmentServiceCircuitBreaker:
+        timeoutDuration: 3s
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
+  endpoint:
+    gateway:
+      access: read-only
+
+    health:
+      probes:
+        enabled: true
+
+  info:
+    env:
+      enabled: true
+
+  tracing:
+    exporter:
+      otlp:
+        endpoint: ${OTEL_ENDPOINT:http://localhost:4318/v1/traces}
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: Hospital Management API Gateway
+    version: 0.0.1-SNAPSHOT
+
 logging:
   level:
-    reactor.netty.http.client: DEBUG
-    reactor.netty.transport: DEBUG
     org.springframework.cloud.gateway: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{X-Correlation-Id}] %-5level [%thread] %logger{36} - %msg%n"

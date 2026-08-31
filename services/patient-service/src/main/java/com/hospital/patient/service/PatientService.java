@@ -1,9 +1,13 @@
 package com.hospital.patient.service;
 
+import com.hospital.patient.dto.PatientRequest;
 import com.hospital.patient.entity.Patient;
+import com.hospital.patient.exception.PatientAlreadyExistsException;
 import com.hospital.patient.repository.PatientRepository;
 import org.springframework.stereotype.Service;
+import com.hospital.patient.exception.PatientNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,32 +19,70 @@ public class PatientService {
         this.patientRepository = patientRepository;
     }
 
+    public Patient createPatient(PatientRequest request) {
+
+        if (patientRepository.existsByEmail(request.email())) {
+            throw new PatientAlreadyExistsException(
+                    "Patient already exists with email: " + request.email());
+        }
+
+        Patient patient = new Patient();
+
+        patient.setFirstName(request.firstName());
+        patient.setLastName(request.lastName());
+        patient.setEmail(request.email());
+        patient.setPhone(request.phone());
+        patient.setCreatedAt(LocalDateTime.now());
+        patient.setUpdatedAt(LocalDateTime.now());
+
+        return patientRepository.save(patient);
+    }
+
     public List<Patient> getAllPatients() {
         return patientRepository.findAll();
     }
 
     public Patient getPatientById(Long id) {
+
         return patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient not found: " + id));
+                .orElseThrow(() -> new PatientNotFoundException("Patient not found with id: " + id));
     }
 
-    public Patient createPatient(Patient patient) {
+    public Patient updatePatient(Long id, PatientRequest request) {
+
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException(
+                        "Patient not found with id: " + id));
+
+        if (!patient.getEmail().equals(request.email())
+                && patientRepository.existsByEmail(request.email())) {
+
+            throw new PatientAlreadyExistsException(
+                    "Patient already exists with email: " + request.email());
+        }
+
+        patient.setFirstName(request.firstName());
+        patient.setLastName(request.lastName());
+        patient.setEmail(request.email());
+        patient.setPhone(request.phone());
+
         return patientRepository.save(patient);
     }
 
-    public Patient updatePatient(Long id, Patient patient) {
-        Patient existingPatient = getPatientById(id);
-
-        existingPatient.setFirstName(patient.getFirstName());
-        existingPatient.setLastName(patient.getLastName());
-        existingPatient.setEmail(patient.getEmail());
-        existingPatient.setPhone(patient.getPhone());
-
-        return patientRepository.save(existingPatient);
-    }
-
     public void deletePatient(Long id) {
-        Patient existingPatient = getPatientById(id);
-        patientRepository.delete(existingPatient);
+
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new PatientNotFoundException(
+                        "Patient not found with id: " + id));
+
+        patientRepository.delete(patient);
     }
+
+    public boolean isPatientExists(Long id) {
+        Patient patient = patientRepository.findById(id)
+                .orElse(null);
+
+        return patient != null;
+    }
+
 }
