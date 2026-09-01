@@ -35,7 +35,7 @@ public class Patient {
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "phone", nullable = false, length = 20)
+    @Column(name = "phone", nullable = false, length = 10)
     private String phone;
 
     @Column(name = "date_of_birth")

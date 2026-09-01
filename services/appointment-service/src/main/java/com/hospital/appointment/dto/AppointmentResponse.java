@@ -15,6 +15,10 @@ public record AppointmentResponse(
 
         Long doctorId,
 
+        Object patientDetails, // Replace 'Object' with your Patient DTO class
+
+        Object doctorDetails,  // Replace 'Object' with your Doctor DTO class
+        
         LocalDateTime appointmentTime,
 
         AppointmentStatus status,

@@ -16,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AppointmentSagaOrchestrator {
 
     private final AppointmentRepository appointmentRepository;
-    private final KafkaTemplate<String, Object> kafkaTemplate;             // <-- Added
-    private final SagaCoordinationManager sagaCoordinationManager;       // <-- Added
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final SagaCoordinationManager sagaCoordinationManager;
 
     private static final String TOPIC_NAME = "appointment-saga-topic";
 
@@ -55,24 +55,33 @@ public class AppointmentSagaOrchestrator {
             return;
         }
 
+
+
         // Track progressive success
         if ("PATIENT_VERIFIED".equals(event.step())) {
-            appointment.setPatientVerified(true);
+            appointment.setStatus(AppointmentStatus.PATIENT_VERIFIED);
             log.info("Patient verified for appointment ID: {}", appointment.getId());
         }
 
         if ("DOCTOR_VERIFIED".equals(event.step())) {
-            appointment.setDoctorVerified(true);
+            appointment.setStatus(AppointmentStatus.DOCTOR_VERIFIED);
             log.info("Doctor verified for appointment ID: {}", appointment.getId());
         }
 
         // If BOTH patient and doctor are successfully verified, complete the saga
-        if (appointment.isPatientVerified() && appointment.isDoctorVerified()) {
+        if (appointment.getStatus() == AppointmentStatus.PATIENT_VERIFIED && appointment.getStatus() == AppointmentStatus.DOCTOR_VERIFIED) {
             appointment.setStatus(AppointmentStatus.CONFIRMED);
             log.info("Saga Completed Successfully: Appointment ID: {} is now CONFIRMED", appointment.getId());
             
             // Notify the waiting HTTP thread
             sagaCoordinationManager.complete(appointment.getId(), appointment.getStatus().name());
+
+            kafkaTemplate.send(TOPIC_NAME, appointment.getId().toString(), new SagaEventPayload(
+                    appointment.getId(),
+                    appointment.getPatientId(),
+                    appointment.getDoctorId(),
+                    appointment.getAppointmentTime(),
+                    "APPOINTMENT_CONFIRMED"));
         }
 
         appointmentRepository.save(appointment);

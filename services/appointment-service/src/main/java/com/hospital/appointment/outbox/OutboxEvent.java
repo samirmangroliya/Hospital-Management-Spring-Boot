@@ -17,14 +17,24 @@ public class OutboxEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String aggregateType; // e.g., "APPOINTMENT_SAGA"
-    private String aggregateId;   // e.g., Appointment ID as String
-    private String eventType;     // e.g., "APPOINTMENT_INITIATED"
+    @Column(name = "aggregate_type", nullable = false, length = 100)
+    private String aggregateType;
 
-    @Column(columnDefinition = "TEXT")
-    private String payload;       // JSON string of the SagaEventPayload
+    @Column(name = "aggregate_id", nullable = false, length = 100)
+    private String aggregateId;
 
-    private boolean processed = false;
+    @Column(name = "event_type", nullable = false, length = 100)
+    private String eventType;
 
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String payload;
+
+    @Column(name = "processed", nullable = false)
+    private Boolean processed = null;
+
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
+
+    @Column(name = "published_at")
+    private Instant publishedAt;
 }

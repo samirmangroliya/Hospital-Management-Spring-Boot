@@ -3,9 +3,7 @@ import express from 'express';
 import { connectDB } from './config/db';
 import notificationRoutes from './routes/notification.routes';
 import { Eureka } from 'eureka-js-client';
-import { connectKafka } from './config/Kafka';
-
-// Initialize Kafka consumer connection
+import { connectKafka } from './config/kafka';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '8085', 10);
@@ -31,24 +29,22 @@ const eurekaClient = new Eureka({
   },
 });
 
-// Replace the eurekaClient.start block with this:
-eurekaClient.start((error: any) => {
-  if (error) {
-    console.error('❌ Eureka registration failed:', error);
-  } else {
-    console.log('🎯 Registered with Eureka server successfully.');
-  }
-});
-
-
-connectDB().then(() => {
+// Connect to MongoDB first, then spin everything else up
+connectDB().then(async () => {
+  // 1. Start the HTTP Express Server
   app.listen(PORT, () => {
     console.log(`🚀 Notification Service running on port ${PORT}`);
     
-    // Register application inside Spring Cloud dashboard
+    // 2. Register application inside Spring Cloud Eureka dashboard
     eurekaClient.start((error: any) => {
       if (error) console.error('❌ Eureka registration failed:', error);
       else console.log('🎯 Registered with Eureka server successfully.');
     });
   });
+
+  // 3. Initialize Kafka Consumer listener safely after DB is active
+  await connectKafka();
+}).catch((err) => {
+  console.error('❌ Failed to connect to database during startup:', err);
+  process.exit(1);
 });

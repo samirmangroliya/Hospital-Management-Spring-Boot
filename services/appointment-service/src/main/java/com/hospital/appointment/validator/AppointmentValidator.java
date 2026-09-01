@@ -29,7 +29,6 @@ public class AppointmentValidator {
             throw new AppointmentException(
                     "Appointment day should be in Monday to Friday.");
         } else {
-            
             // Check working hours (e.g., 9 AM to 5 PM)
             int hour = appointmentTime.getHour();
             if (hour < 9 || hour >= 17) {

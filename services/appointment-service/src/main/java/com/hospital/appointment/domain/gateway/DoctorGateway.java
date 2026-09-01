@@ -1,5 +1,7 @@
 package com.hospital.appointment.domain.gateway;
 
+import com.hospital.appointment.dto.DoctorResponseDto;
+
 public interface DoctorGateway {
-    boolean checkDoctorExists(Long doctorId);
+    DoctorResponseDto getDoctorById(Long doctorId);
 }

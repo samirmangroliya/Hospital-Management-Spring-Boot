@@ -16,7 +16,7 @@ export const connectKafka = async (): Promise<void> => {
     console.log('📦 Kafka Consumer connected successfully.');
 
     // Subscribe to notification event topics
-    await consumer.subscribe({ topic: 'hospital-notifications', fromBeginning: false });
+    await consumer.subscribe({ topic: 'appointment-saga-topic', fromBeginning: false });
 
     // Start listening for message streams
     await consumer.run({

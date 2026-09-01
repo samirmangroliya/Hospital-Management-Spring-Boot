@@ -19,28 +19,32 @@ public class PatientSagaConsumer {
 
     @KafkaListener(topics = TOPIC_NAME, groupId = "patient-saga-group")
     public void consumeAppointmentInitiated(SagaEventPayload event) {
-        // Only process if the event is at the initiation step
-        if (!"APPOINTMENT_INITIATED".equals(event.step())) {
-            return;
+        try {
+            // Only process if the event is at the initiation step
+            if (!"APPOINTMENT_INITIATED".equals(event.step())) {
+                return;
+            }
+
+            log.info("Received appointment initiation for patient ID: {}", event.patientId());
+
+            boolean exists = patientRepository.existsById(event.patientId());
+
+            String nextStep = exists ? "PATIENT_VERIFIED" : "PATIENT_FAILED";
+
+            // Create response payload
+            SagaEventPayload responseEvent = new SagaEventPayload(
+                    event.appointmentId(),
+                    event.patientId(),
+                    event.doctorId(),
+                    event.appointmentTime(),
+                    nextStep);
+
+            // Send response back to Kafka
+            kafkaTemplate.send(TOPIC_NAME, event.appointmentId().toString(), responseEvent);
+            log.info("Sent saga response step: {} for appointment ID: {}", nextStep, event.appointmentId());
+        } catch (Exception e) {
+            log.error("Error processing Kafka message, but service remains operational", e);
         }
 
-        log.info("Received appointment initiation for patient ID: {}", event.patientId());
-
-        boolean exists = patientRepository.existsById(event.patientId());
-
-        String nextStep = exists ? "PATIENT_VERIFIED" : "PATIENT_FAILED";
-
-        // Create response payload
-        SagaEventPayload responseEvent = new SagaEventPayload(
-                event.appointmentId(),
-                event.patientId(),
-                event.doctorId(),
-                event.appointmentTime(),
-                nextStep
-        );
-
-        // Send response back to Kafka
-        kafkaTemplate.send(TOPIC_NAME, event.appointmentId().toString(), responseEvent);
-        log.info("Sent saga response step: {} for appointment ID: {}", nextStep, event.appointmentId());
     }
 }

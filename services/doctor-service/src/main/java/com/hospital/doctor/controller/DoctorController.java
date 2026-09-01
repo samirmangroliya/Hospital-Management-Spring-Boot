@@ -52,7 +52,12 @@ public class DoctorController {
             Long id) {
 
         Doctor doctor = doctorService.getDoctorById(id);
-
+        
+        if(doctor == null) {
+            return ResponseEntity.ok(
+                    ApiResponse.failure("Doctor not found with id: " + id)
+            );
+        }
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "Doctor fetched successfully",

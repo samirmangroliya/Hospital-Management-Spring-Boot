@@ -26,6 +26,11 @@ public class PatientService {
                     "Patient already exists with email: " + request.email());
         }
 
+        if (patientRepository.existsByPhone(request.phone())) {
+            throw new PatientAlreadyExistsException(
+                    "Patient already exists with phone: " + request.phone());
+        }
+
         Patient patient = new Patient();
 
         patient.setFirstName(request.firstName());
@@ -45,7 +50,7 @@ public class PatientService {
     public Patient getPatientById(Long id) {
 
         return patientRepository.findById(id)
-                .orElseThrow(() -> new PatientNotFoundException("Patient not found with id: " + id));
+                .orElse(null);
     }
 
     public Patient updatePatient(Long id, PatientRequest request) {

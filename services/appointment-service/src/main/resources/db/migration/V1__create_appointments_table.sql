@@ -13,15 +13,7 @@ CREATE TABLE appointments (
 
     updated_at TIMESTAMP NOT NULL,
 
-    CONSTRAINT chk_appointment_status
-        CHECK (
-            status IN (
-                'SCHEDULED',
-                'CONFIRMED',
-                'COMPLETED',
-                'CANCELLED'
-            )
-        )
+    CONSTRAINT chk_appointment_status CHECK (status IN ('INITIATED', 'PATIENT_VERIFIED', 'DOCTOR_VERIFIED', 'FAILED', 'CONFIRMED', 'COMPLETED', 'CANCELLED'))    
 );
 
 CREATE INDEX idx_appointment_doctor_time

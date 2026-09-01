@@ -63,6 +63,12 @@ public class PatientController {
 
                 Patient patient = patientService.getPatientById(id);
 
+                if(patient == null) {
+                    return ResponseEntity.ok(
+                            ApiResponse.failure("Patient not found with id: " + id)
+                    );
+                }
+
                 return ResponseEntity.ok(
                                 ApiResponse.success(
                                                 "Patient fetched successfully",

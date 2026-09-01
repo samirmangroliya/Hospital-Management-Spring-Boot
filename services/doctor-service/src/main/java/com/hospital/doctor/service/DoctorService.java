@@ -27,10 +27,7 @@ public class DoctorService {
     public Doctor getDoctorById(Long id) {
 
         return doctorRepository.findById(id)
-                .orElseThrow(() ->
-                        new DoctorNotFoundException(
-                                "Doctor not found with id: " + id
-                        ));
+                .orElse(null);
     }
 
     public Doctor createDoctor(DoctorRequest request) {
@@ -38,6 +35,12 @@ public class DoctorService {
         if (doctorRepository.existsByEmail(request.email())) {
             throw new DoctorAlreadyExistsException(
                     "Doctor already exists with email: " + request.email()
+            );
+        }
+
+        if (doctorRepository.existsByPhone(request.phone())) {
+            throw new DoctorAlreadyExistsException(
+                    "Doctor already exists with phone: " + request.phone()
             );
         }
 

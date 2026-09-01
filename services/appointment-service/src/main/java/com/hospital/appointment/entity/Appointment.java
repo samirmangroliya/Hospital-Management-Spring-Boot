@@ -71,7 +71,4 @@ public class Appointment {
     public void updateStatus(AppointmentStatus status) {
         this.status = status;
     }
-
-    private boolean patientVerified = false;
-    private boolean doctorVerified = false;
 }

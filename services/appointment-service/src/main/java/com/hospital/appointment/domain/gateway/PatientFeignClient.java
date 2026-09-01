@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "patient-service")
 public interface PatientFeignClient {
 
-    @GetMapping("/api/patients/{id}/exists")
-    boolean checkPatientExists(@PathVariable("id") Long id);
+    @GetMapping("/api/patients/{id}")
+    Object getPatientById(@PathVariable("id") Long id);
 }
