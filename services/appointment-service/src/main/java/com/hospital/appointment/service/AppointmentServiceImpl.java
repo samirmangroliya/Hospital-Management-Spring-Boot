@@ -5,6 +5,8 @@ import com.hospital.appointment.domain.gateway.PatientGateway;
 import com.hospital.appointment.dto.AppointmentRequest;
 import com.hospital.appointment.dto.AppointmentResponse;
 import com.hospital.appointment.dto.AppointmentStatusRequest;
+import com.hospital.appointment.dto.DoctorInfo;
+import com.hospital.appointment.dto.PatientInfo;
 import com.hospital.appointment.entity.Appointment;
 import com.hospital.appointment.entity.AppointmentStatus;
 import com.hospital.appointment.exception.AppointmentException;
@@ -20,8 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -93,53 +93,50 @@ public class AppointmentServiceImpl implements AppointmentService {
                 Appointment appointment = appointmentRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "Appointment not found with id: " + id));
-
-                return toResponse(appointment);
+                DoctorInfo doctor = doctorGateway.getDoctorById(appointment.getDoctorId());
+                ;
+                PatientInfo patient = patientGateway.getPatientById(appointment.getPatientId());
+                return new AppointmentResponse(
+                                appointment.getId(),
+                                appointment.getPatientId(),
+                                appointment.getDoctorId(),
+                                patient,
+                                doctor,
+                                appointment.getAppointmentTime(),
+                                appointment.getStatus(),
+                                appointment.getCreatedAt(),
+                                appointment.getUpdatedAt());
         }
 
         // @Override
         // public List<AppointmentResponse> getAll() {
 
-        //         return appointmentRepository.findAll()
-        //                         .stream()
-        //                         .map(this::toResponse)
-        //                         .toList();
+        // return appointmentRepository.findAll()
+        // .stream()
+        // .map(this::toResponse)
+        // .toList();
         // }
 
-    @Override
-    public List<AppointmentResponse> getAll() {
-        List<Appointment> appointments = appointmentRepository.findAll();
+        @Override
+        public List<AppointmentResponse> getAll() {
+                List<Appointment> appointments = appointmentRepository.findAll();
 
-        return appointments.stream().map(appointment -> {
-            // Fetch patient and doctor details safely via Feign
-            Object patient = null;
-            Object doctor = null;
-            
-            try {
-                patient = patientGateway.getPatientById(appointment.getPatientId());
-            } catch (Exception e) {
-                throw new AppointmentException("Failed to fetch doctor details for ID: " + e.getMessage());
-            }
-
-            try {
-                doctor = doctorGateway.getDoctorById(appointment.getDoctorId());
-            } catch (Exception e) {
-                throw new AppointmentException("Failed to fetch doctor details for ID: " + e.getMessage());
-            }
- 
-            return new AppointmentResponse(
-                    appointment.getId(),
-                    appointment.getPatientId(),
-                    appointment.getDoctorId(),
-                    patient,
-                    doctor,
-                    appointment.getAppointmentTime(),
-                    appointment.getStatus(),
-                    appointment.getCreatedAt(),
-                    appointment.getUpdatedAt()
-            );
-        }).toList();
-    }
+                return appointments.stream().map(appointment -> {
+                        DoctorInfo doctor = doctorGateway.getDoctorById(appointment.getDoctorId());
+                        ;
+                        PatientInfo patient = patientGateway.getPatientById(appointment.getPatientId());
+                        return new AppointmentResponse(
+                                        appointment.getId(),
+                                        appointment.getPatientId(),
+                                        appointment.getDoctorId(),
+                                        patient,
+                                        doctor,
+                                        appointment.getAppointmentTime(),
+                                        appointment.getStatus(),
+                                        appointment.getCreatedAt(),
+                                        appointment.getUpdatedAt());
+                }).toList();
+        }
 
         @Override
         @Transactional
@@ -338,8 +335,8 @@ public class AppointmentServiceImpl implements AppointmentService {
                                 appointment.getId(),
                                 appointment.getPatientId(),
                                 appointment.getDoctorId(),
-                                null, // Placeholder for patient details
-                                null, // Placeholder for doctor details
+                                null,
+                                null,
                                 appointment.getAppointmentTime(),
                                 appointment.getStatus(),
                                 appointment.getCreatedAt(),

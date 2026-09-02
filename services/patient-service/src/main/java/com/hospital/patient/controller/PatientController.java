@@ -1,6 +1,7 @@
 package com.hospital.patient.controller;
 
 import com.hospital.common.response.ApiResponse;
+import com.hospital.patient.dto.PatientInternalResponse;
 import com.hospital.patient.dto.PatientRequest;
 import com.hospital.patient.entity.Patient;
 import com.hospital.patient.service.PatientService;
@@ -73,6 +74,19 @@ public class PatientController {
                                 ApiResponse.success(
                                                 "Patient fetched successfully",
                                                 patient));
+        }
+
+        @GetMapping("/internal/{id}")
+        public ResponseEntity<PatientInternalResponse> getInternalPatient(
+                        @PathVariable @Positive(message = "Invalid patient ID") Long id) {
+                Patient patient = patientService.getPatientById(id);
+                PatientInternalResponse response = new PatientInternalResponse(
+                                patient.getFirstName(),
+                                patient.getLastName(),
+                                patient.getEmail(),
+                                patient.getPhone()
+                );
+                return ResponseEntity.ok(response);
         }
 
         // ---------------------------------------------------------

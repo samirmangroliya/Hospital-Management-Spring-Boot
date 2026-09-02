@@ -1,7 +1,7 @@
 package com.hospital.appointment.domain.gateway;
 
-import com.hospital.appointment.dto.DoctorResponseDto;
+import com.hospital.appointment.dto.DoctorInfo;
 
 public interface DoctorGateway {
-    DoctorResponseDto getDoctorById(Long doctorId);
+    DoctorInfo getDoctorById(Long doctorId);
 }
