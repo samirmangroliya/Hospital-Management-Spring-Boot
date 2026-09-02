@@ -3,11 +3,8 @@ package com.hospital.appointment.domain.gateway;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.hospital.appointment.dto.DoctorInfo;
 import com.hospital.appointment.dto.PatientInfo;
 import com.hospital.appointment.exception.AppointmentException;
-import com.hospital.common.response.ApiResponse;
-
 import lombok.RequiredArgsConstructor;
 
 @Component

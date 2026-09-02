@@ -75,15 +75,25 @@ public class GlobalExceptionHandler {
                                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body(ApiResponse.failure("An unexpected error occurred."+ exception.getMessage()));
     }
-
+    
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Void>> handleMissingOrInvalidBody(HttpMessageNotReadableException ex) {
+        String message = "Required request body is missing or malformed.";
 
-                // Hardcode a clean, universal message for your frontend consumers
-                String userFriendlyMessage = "Required data is missing or invalid."; 
+        // Unpack Jackson's nested cause to give a cleaner hint if it's a date/time parsing error
+        Throwable cause = ex.getCause();
+        if (cause instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException) {
+            message = "Invalid format provided for one of the fields. Check date-time values (e.g., valid hours 0-23 and minutes 0-59).";
+        } else if (cause instanceof com.fasterxml.jackson.databind.exc.MismatchedInputException) {
+            message = "Mismatched input type. Ensure the request body matches the expected structure.";
+        } else if (cause instanceof com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException) {
+            message = "Unrecognized field in the request body. Please check for typos or unexpected fields.";
+        } else {
+            message = "Malformed JSON or missing required fields in the request body."+ex.getMessage();
+        }
 
-                return ResponseEntity
-                                .status(HttpStatus.BAD_REQUEST) // Returns standard 400 Bad Request
-                                .body(ApiResponse.failure(userFriendlyMessage + " " + ex.getMessage()));
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.failure(message));
     }
 }
