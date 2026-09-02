@@ -80,6 +80,11 @@ public class PatientController {
         public ResponseEntity<PatientInternalResponse> getInternalPatient(
                         @PathVariable @Positive(message = "Invalid patient ID") Long id) {
                 Patient patient = patientService.getPatientById(id);
+
+                if (patient == null) {
+                        return ResponseEntity.notFound().build();
+                }
+                
                 PatientInternalResponse response = new PatientInternalResponse(
                                 patient.getFirstName(),
                                 patient.getLastName(),

@@ -69,6 +69,7 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       CLUSTER_ID: 'Mk3OEYBSD3T24u9ybeHX3A'
    
        
@@ -329,9 +330,9 @@ services:
       eureka-server:
         condition: service_started
       jaeger:
-        condition: service_started
-      kafka: # 👈 Ensures it boots after your Kafka broker engine goes live
         condition: service_started  
+      kafka:
+        condition: service_healthy  
     environment:
       PORT: ${NOTIFICATION_SERVICE_PORT:-8084}
       MONGO_URI: ${MONGO_URI:?MONGO_URI is required}

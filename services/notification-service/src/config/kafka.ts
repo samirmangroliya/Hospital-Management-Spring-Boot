@@ -1,7 +1,7 @@
 import { Kafka, Consumer } from 'kafkajs';
 import { NotificationModel } from '../models/notification.model';
 
-const kafkaBroker = process.env.KAFKA_BOOTSTRAP_SERVERS || 'localhost:9092';
+const kafkaBroker = 'kafka:9092';
 
 const kafka = new Kafka({
   clientId: 'notification-service',

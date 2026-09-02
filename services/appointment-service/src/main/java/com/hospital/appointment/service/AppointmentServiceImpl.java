@@ -89,12 +89,10 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         @Override
         public AppointmentResponse getById(Long id) {
-
                 Appointment appointment = appointmentRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "Appointment not found with id: " + id));
-                DoctorInfo doctor = doctorGateway.getDoctorById(appointment.getDoctorId());
-                ;
+                DoctorInfo doctor = doctorGateway.getDoctorById(appointment.getDoctorId());                
                 PatientInfo patient = patientGateway.getPatientById(appointment.getPatientId());
                 return new AppointmentResponse(
                                 appointment.getId(),
@@ -107,23 +105,13 @@ public class AppointmentServiceImpl implements AppointmentService {
                                 appointment.getCreatedAt(),
                                 appointment.getUpdatedAt());
         }
-
-        // @Override
-        // public List<AppointmentResponse> getAll() {
-
-        // return appointmentRepository.findAll()
-        // .stream()
-        // .map(this::toResponse)
-        // .toList();
-        // }
-
+    
         @Override
         public List<AppointmentResponse> getAll() {
                 List<Appointment> appointments = appointmentRepository.findAll();
 
                 return appointments.stream().map(appointment -> {
-                        DoctorInfo doctor = doctorGateway.getDoctorById(appointment.getDoctorId());
-                        ;
+                        DoctorInfo doctor = doctorGateway.getDoctorById(appointment.getDoctorId());                        
                         PatientInfo patient = patientGateway.getPatientById(appointment.getPatientId());
                         return new AppointmentResponse(
                                         appointment.getId(),
@@ -330,7 +318,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         private AppointmentResponse toResponse(Appointment appointment) {
-
                 return new AppointmentResponse(
                                 appointment.getId(),
                                 appointment.getPatientId(),
