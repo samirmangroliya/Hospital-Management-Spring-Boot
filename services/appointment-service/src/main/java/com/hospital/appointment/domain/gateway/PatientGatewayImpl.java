@@ -1,7 +1,10 @@
 package com.hospital.appointment.domain.gateway;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import com.hospital.appointment.dto.DoctorInfo;
+import com.hospital.appointment.dto.PatientInfo;
 import com.hospital.appointment.exception.AppointmentException;
 import com.hospital.common.response.ApiResponse;
 
@@ -15,14 +18,16 @@ public class PatientGatewayImpl
     private final PatientFeignClient client;
 
     @Override
-    public Object getPatientById(Long patientId) {
-        Object responseObj = client.getPatientById(patientId);
-
-        if (!(responseObj instanceof ApiResponse<?> apiResponse)) {
-            throw new IllegalStateException(
-                    "Unexpected response type: " + (responseObj != null ? responseObj.getClass().getName() : "null"));
+    public PatientInfo getPatientById(Long patientId) {
+         try {
+            ResponseEntity<PatientInfo> responseEntity = client.getPatientById(patientId);
+            
+            if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
+                throw new AppointmentException("Patient not found with id: " + patientId);
+            }
+            return responseEntity.getBody();
+        } catch (Exception e) {
+            throw new AppointmentException("Error communicating with patient-service: " + e.getMessage());
         }
- 
-        return apiResponse.getData();
     }
 }

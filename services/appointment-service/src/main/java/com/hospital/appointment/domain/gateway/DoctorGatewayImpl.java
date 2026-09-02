@@ -1,10 +1,10 @@
 package com.hospital.appointment.domain.gateway;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import com.hospital.appointment.dto.DoctorResponseDto;
-import com.hospital.common.response.ApiResponse;
-
+import com.hospital.appointment.dto.DoctorInfo;
+import com.hospital.appointment.exception.AppointmentException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -15,14 +15,16 @@ public class DoctorGatewayImpl
     private final DoctorFeignClient client;
 
     @Override
-    public DoctorResponseDto getDoctorById(Long doctorId) {
-      Object responseObj = client.getDoctorById(doctorId);
-
-        if (!(responseObj instanceof ApiResponse<?> apiResponse)) {
-            throw new IllegalStateException(
-                    "Unexpected response type: " + (responseObj != null ? responseObj.getClass().getName() : "null"));
+    public DoctorInfo getDoctorById(Long doctorId) {
+        try {
+            ResponseEntity<DoctorInfo> responseEntity = client.getInternalDoctor(doctorId);
+            
+            if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
+                throw new AppointmentException("Doctor not found with id: " + doctorId);
+            }
+            return responseEntity.getBody();
+        } catch (Exception e) {
+            throw new AppointmentException("Error communicating with doctor-service: " + e.getMessage());
         }
- 
-        return (DoctorResponseDto) apiResponse.getData();
     }
 }
